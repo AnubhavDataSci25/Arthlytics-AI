@@ -6,15 +6,21 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.models.user import User
 from app.schemas.auth import RegisterRequest
+import hashlib, base64
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+def _prepare(password: str) -> str:
+    """SHA256 → base64 → safe 44-char string. Fits bcrypt's 72-byte limit."""
+    digest = hashlib.sha256(password.encode()).digest()
+    return base64.b64encode(digest).decode()
+
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return pwd_context.hash(_prepare(password))
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    return pwd_context.verify(_prepare(plain), hashed)
 
 # JWT token creation and verification
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
