@@ -11,7 +11,15 @@ class Settings(BaseSettings):
         "http://localhost:3000",
     ]
 
-    DATABASE_URL: str = "postgresql://user:password@localhost:5432/arthlytics_db"
+    # If DATABASE_URL is not provided, it will be built from the parts below.
+    DATABASE_URL: str = ""
+
+    # DB connection parts (used when DATABASE_URL not provided)
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str = ""
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
+    DB_NAME: str = "arthlytics_db"
 
     REDIS_URL: str = "redis://localhost:6379"
 

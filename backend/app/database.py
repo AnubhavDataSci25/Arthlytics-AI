@@ -1,9 +1,18 @@
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
-engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
+connection_url = URL.create(
+    drivername="postgresql",
+    username=settings.DB_USER,
+    password=settings.DB_PASSWORD,
+    host=settings.DB_HOST,
+    port=settings.DB_PORT,
+    database=settings.DB_NAME,
+)
+engine = create_engine(connection_url)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -14,6 +23,3 @@ def get_db():
     db = SessionLocal()
     try: yield db
     finally: db.close()
-
-from app.models.user import User
-Base.metadata.create_all(bind=engine)
