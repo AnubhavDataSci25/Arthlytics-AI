@@ -113,8 +113,8 @@ def compute_clean_stats(df: pd.DataFrame, file_record: UploadedFile) -> CleanSta
             stat.mean = _safe_val(round(float(desc["mean"]), 4))
             stat.median = _safe_val(round(float(series.median()), 4))
             stat.std = _safe_val(round(float(desc["std"]), 4))
-            stat.max = _safe_val(round(float(desc["max"]), 4))
-            stat.min = _safe_val(round(float(desc["min"]), 4))
+            stat.col_max = _safe_val(round(float(desc["max"]), 4))
+            stat.col_min = _safe_val(round(float(desc["min"]), 4))
         else:
             # Top 5 most frequent values
             top = series.value_counts().head(5).to_dict()

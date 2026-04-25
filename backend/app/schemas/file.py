@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
@@ -6,7 +6,7 @@ class FileOut(BaseModel):
     id: int
     original_name: str
     file_type: str
-    file_size_kb: str
+    file_size_kb: float
     row_count: Optional[int]
     col_count: Optional[int]
     columns: Optional[List[str]]
@@ -26,11 +26,13 @@ class ColumnStat(BaseModel):
     mean: Optional[float] = None
     median: Optional[float] = None
     std: Optional[float] = None
-    min: Optional[float] = None
-    max = Optional[float] = None
+    col_min: Optional[float] = Field(None, alias="min")
+    col_max: Optional[float] = Field(None, alias="max")
 
     # Categorical only
     top_values: Optional[Dict[str, int]] = None
+
+    model_config = {"populate_by_name":True}
 
 
 class CleanStatsResponse(BaseModel):
@@ -40,6 +42,6 @@ class CleanStatsResponse(BaseModel):
     col_count: int
     duplicate_rows: int
     missing_cells: int
-    missing_pct = float
+    missing_pct: float
     columns: List[ColumnStat]
     sample_rows: List[Dict[str, Any]]
