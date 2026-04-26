@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
     ###### AI Models API #######
-
+    GEMINI_API_KEY: str = ""
 
     ###### File Storage #######
     UPLOAD_DIR: str = "./uploads"
