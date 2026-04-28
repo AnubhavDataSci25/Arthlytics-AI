@@ -14,9 +14,13 @@ pandas==2.2.2
 openpyxl==3.1.2
 aiofiles==23.2.1
 google-generativeai==0.5.4
-langchain==0.2.0
-langchain-community==0.2.0
+langchain
+langchain-community
 langchain-groq==0.1.6
 langchain-google-genai==1.0.6
 faiss-cpu==1.8.0
 sentence-transformers==2.7.0
+google-genai
+langsmith==0.7.37
+ipykernel
+langgraph

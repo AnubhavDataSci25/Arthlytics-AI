@@ -1,28 +1,68 @@
 """
-SmartQuery - RAG pipeline (LangChain full chain):
-    HuggingFace Inference API -> embeddings (no local download)
-    FAISS                     -> vector store + retrieval
-    LangChain                 -> full chain (prompt + retrieval + LLM)
-    Groq / LlaMa3-8b          -> LLM answer
-    Gemini                    -> fallback if Groq fails
+SmartQuery - SQL Agent:
+    CSV/XLSX -> SQLite (one-time, per file)
+    SQLDatabaseToolkit -> 4 tools (query, schema, list_tables, checker)
+    create_sql_agent + system_prompt -> Gemini/Groq LLM
+    Raw result -> humanize pass -> plain Englist answer
 """
 
 import hashlib
 from typing import Any
+import os
 
 import pandas as pd
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from sqlalchemy import create_engine
+from langchain_community.utilities import SQLDatabase
+from langchain.agents import create_sql_agent
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
-from langchain.prompts import PromptTemplate
-from langchain.schema import Document
+from langsmith import traceable
 
 from app.config import settings
 from app.models.file import UploadedFile
 from app.services.data_service import load_dataframe
+
+if settings.LANGSMITH_API_KEY:
+    os.environ['LANGSMITH_TRACING_V2'] = "true"
+    os.environ["LANGSMITH_API_KEY"] = settings.LANGSMITH_API_KEY
+    os.environ["LANGSMITH_PROJECT"] = settings.LANGSMITH_PROJECT
+    os.environ["LANGSMITH_ENDPOINT"] = settings.LANGSMITH_ENDPOINT
+
+##### Config #####
+SQLITE_DIR = "./sqlite_dbs"
+os.makedirs(SQLITE_DIR, exist_ok=True)
+_db_cache: dict[str, SQLDatabase] = {}
+
+##### Helpers #####
+
+def _file_hash(file_record: UploadedFile) -> str:
+    key = f"{file_record.id}:{file_record.file_path}"
+    return hashlib.md5(key.encode()).hexdigest()
+
+def _sqlite_path(fhash: str) -> str:
+    return os.path.join(SQLITE_DIR, f"{fhash}.db")
+
+def _sanitize_col(col: str) -> str:
+    return col.strip().replace(" ","_").replace("-","_").replace("(","").replace(")","")
+
+##### CSV -> SQLite #####
+
+def _build_sqlite(file_record: UploadedFile) -> str:
+    fhash = _file_hash(file_record)
+    db_path = _sqlite_path(fhash)
+
+    if os.path.exists(db_path):
+        return db_path
+    
+    df = load_dataframe(file_record)
+    df.columns = [_sanitize_col(c) for c in df.columns]
+
+    engine = create_engine(f"sqlite:///{db_path}")
+    df.to_sql("data", engine, if_exists="replace", index=False)
+    engine.dispose()
+
+    return db_path
 
 ##### LLMs #####
 
@@ -32,118 +72,91 @@ def _get_llm():
         return ChatGroq(
             api_key=settings.GROQ_API_KEY,
             model_name="llama-3.3-70b-versatile",
-            temperature=0.2,
+            temperature=0,
             max_tokens=1024,
         )
     return ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         google_api_key=settings.GEMINI_API_KEY,
-        temperature=0.2
+        temperature=0
     )
 
-##### Embeddings #####
+##### SQL DB #####
 
-def _get_embeddings():
-    return HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2",
-    )
-
-##### In-memory FAISS cache: {file_hash: FAISS vectorstore} #####
-
-_store_cache: dict[str, FAISS] = {}
-
-def _file_hash(file_record: UploadedFile) -> str:
-    key = f"{file_record.id}:{file_record.file_path}"
-    return hashlib.md5(key.encode()).hexdigest()
-
-##### Chunking -> LangChain Documents #####
-
-def _df_to_documents(df: pd.DataFrame, chunk_size: int = 10) -> list[Document]:
-    """
-    Convert dataframe rows -> LangChain Documents.
-    Each doc = up to chunk_size rows as readable text + metadata
-    """
-    docs = []
-    cols = list(df.columns)
-
-    for start in range(0, len(df), chunk_size):
-        batch = df.iloc[start: start + chunk_size]
-        lines = [f"Columns: {', '.join(cols)}"]
-        for _, row in batch.iterrows():
-            parts = [f"{col}={row[col]}" for col in cols]
-            lines.append(" | ".join(parts))
-        
-        docs.append(Document(
-            page_content="\n".join(lines),
-            metadata={
-                "rows": f"{start}-{start + len(batch) - 1}",
-                "chunk_index": start // chunk_size,
-            }
-        ))
-    return docs
-
-##### Build / load FAISS vectorstore #####
-
-def _get_vectorestore(file_record: UploadedFile) -> FAISS:
+def _get_sql_db(file_record: UploadedFile) -> SQLDatabase:
     fhash = _file_hash(file_record)
+    if fhash in _db_cache:
+        return _db_cache[fhash]
+    db_path = _build_sqlite(file_record)
+    sql_db = SQLDatabase.from_uri(f"sqlite:///{db_path}")
+    _db_cache[fhash] = sql_db
+    return sql_db
 
-    if fhash in _store_cache:
-        return _store_cache[fhash]
-    
-    df = load_dataframe(file_record)
-    docs = _df_to_documents(df, chunk_size=10)
-    embeddings = _get_embeddings()
+##### System prompt #####
 
-    store = FAISS.from_documents(docs, embeddings)
-    _store_cache[fhash] = store
-    return store
+def _system_prompt(dialect: str, top_k: int = 5) -> str:
+    return f"""
+    You are an agent designed to interact with a SQL database.
+    Given an input question, create a syntactically correct {dialect} query to run,
+    then look at the results of the query and return the answer. Unless the user
+    specifies a specific number of examples they wish to obtain, always limit your
+    query to at most {top_k} results.
 
-##### RAG Prompt #####
+    IMPORTANT RULES:
+    - The database has ONE table called exactly "data". Always query from "data".
+    - To list tables, call sql_db_list_tables with empty string input, not "data".
+    - Always run sql_db_schema on "data" to see columns before querying.
+    - Never assume column or table names. Always inspect schema first.
+    - You MUST double check query before executing. Use sql_db_query_checker.
+    - DO NOT make DML statements (INSERT, UPDATE, DELETE, DROP).
 
-RAG_PROMPT = PromptTemplate(
-    input_variables=["context", "question"],
-    template="""You are a precise data analyst assistant. Answer the question using ONLY the data context below.
+    Workflow:
+    1. Call sql_db_list_tables with empty input ""
+    2. Call sql_db_schema with "data"
+    3. Write SQL using actual column names from schema
+    4. Check SQL with sql_db_query_checker
+    5. Run with sql_db_query
+    6. Return answer
+    """.strip()
 
-    Context:
-    {context}
 
-    Question: {question}
+##### Humanize #####
 
-    Rules:
-    - Use ONLY data from context. Never invent numbers.
-    - Be concise and specific. Include actual values when available.
-    - If context is insufficient, say: "Based on available data, I cannot answer this precisely."
-    - Plain text only. No markdown headers or bullet symbols.
-
-    Answer:
+def _humanize(llm, query: str, sql_result: str) -> str:
+    prompt = f"""
+        User asked: "{query}"
+        SQL query returned: {sql_result}
+        Write clear, concise plain English answer. No markdown. No bullets. Direct answer only.
     """
-)
+    response = llm.invoke(prompt)
+    return response.content.strip() if hasattr(response, "content") else str(response).strip()
 
 ##### Main entry #####
-
-async def query_file(file_record, query, top_k=5):
-    vectorestore = _get_vectorestore(file_record)
-    retriever = vectorestore.as_retriever(search_kwargs={"k": top_k})
+@traceable(name="SmartQuery")
+async def query_file(file_record, query, top_k=5) -> dict[str, Any]:
+    sql_db = _get_sql_db(file_record)
     llm = _get_llm()
 
-    def format_docs(docs):
-        return "\n\n---\n\n".join(d.page_content for d in docs)
-    
-    chain = (
-        {"context": retriever | format_docs, "question": RunnablePassthrough()}
-        | RAG_PROMPT
-        | llm
-        | StrOutputParser()
+    toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
+
+    agent = create_sql_agent(
+        llm=llm,
+        toolkit=toolkit,
+        system_prompt=_system_prompt(sql_db.dialect, top_k),
+        verbose=True,
+        max_iterations=6,
+        handle_parsing_errors=True,
     )
 
-    retrieved_docs = retriever.invoke(query)
-    answer = chain.invoke(query)
+    agent_result = agent.invoke({"input":query})
+    raw_answer = agent_result.get("output", "Could not generate answer.")
+    final_answer = _humanize(llm,query,raw_answer)
 
     df = load_dataframe(file_record)
+
     return {
-        "answer": answer.strip(),
-        "chunk_used": len(retrieved_docs),
-        "total_chunks": vectorestore.index.ntotal,
+        "answer": final_answer,
+        "raw_sql_result": raw_answer,
         "source_file": file_record.original_name,
         "model_used": "groq/llama-3.3-70b-versatile" if settings.GROQ_API_KEY else "gemini/gemini-2.5-flash",
         "dataset_info": {"rows": len(df), "columns": list(df.columns)},
@@ -152,4 +165,7 @@ async def query_file(file_record, query, top_k=5):
 def clear_index(file_record: UploadedFile) -> None:
     """Free memory when file deleted."""
     fhash = _file_hash(file_record)
-    _store_cache.pop(fhash, None)
+    _db_cache.pop(fhash, None)
+    db_path = _sqlite_path(fhash)
+    if os.path.exists(db_path):
+        os.remove(db_path)

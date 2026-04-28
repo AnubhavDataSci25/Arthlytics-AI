@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     ###### AI Models API #######
     GEMINI_API_KEY: str = ""
     GROQ_API_KEY: str = ""
+    LANGSMITH_ENDPOINT: str = ""
+    LANGSMITH_API_KEY: str = ""
+    LANGSMITH_PROJECT: str = ""
 
     ###### File Storage #######
     UPLOAD_DIR: str = "./uploads"
