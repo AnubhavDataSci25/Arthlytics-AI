@@ -34,6 +34,27 @@ class ColumnStat(BaseModel):
 
     model_config = {"populate_by_name":True}
 
+class OutlierInfo(BaseModel):
+    count: int
+    pct: float
+    lower_bound: float
+    upper_bound: float
+
+class CleaningSummary(BaseModel):
+    duplicates_removed: int
+    missing_filled: int
+    dtype_fixes: List[str]
+    outliers_detected: Dict[str, OutlierInfo]
+    outliers_removed: bool
+    rows_before: int
+    rows_after: int
+    cols: int
+
+class BeforeAfter(BaseModel):
+    rows: Dict[str, int]
+    missing_cells: Dict[str, int]
+    duplicates: Dict[str, int]
+    memory_kb: Dict[str, float]
 
 class CleanStatsResponse(BaseModel):
     file_id: int
@@ -45,3 +66,8 @@ class CleanStatsResponse(BaseModel):
     missing_pct: float
     columns: List[ColumnStat]
     sample_rows: List[Dict[str, Any]]
+    cleaning_summary: Optional[CleaningSummary] = None
+    before_after: Optional[BeforeAfter] = None
+    insights: Optional[str] = None
+    cleaned_file_path: Optional[str] = None
+    cleaned_file_name: Optional[str] = None
