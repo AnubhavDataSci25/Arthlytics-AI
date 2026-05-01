@@ -71,7 +71,7 @@ def _get_llm():
     if settings.GROQ_API_KEY:
         return ChatGroq(
             api_key=settings.GROQ_API_KEY,
-            model_name="llama-3.3-70b-versatile",
+            model_name="llama-3.1-8b-instant",
             temperature=0,
             max_tokens=1024,
         )
@@ -96,27 +96,24 @@ def _get_sql_db(file_record: UploadedFile) -> SQLDatabase:
 
 def _system_prompt(dialect: str, top_k: int = 5) -> str:
     return f"""
-    You are an agent designed to interact with a SQL database.
-    Given an input question, create a syntactically correct {dialect} query to run,
-    then look at the results of the query and return the answer. Unless the user
-    specifies a specific number of examples they wish to obtain, always limit your
-    query to at most {top_k} results.
+    You are a SQL agent. Database has ONE table: "data".
 
     IMPORTANT RULES:
-    - The database has ONE table called exactly "data". Always query from "data".
-    - To list tables, call sql_db_list_tables with empty string input, not "data".
-    - Always run sql_db_schema on "data" to see columns before querying.
-    - Never assume column or table names. Always inspect schema first.
-    - You MUST double check query before executing. Use sql_db_query_checker.
-    - DO NOT make DML statements (INSERT, UPDATE, DELETE, DROP).
+    - Rules:
+    - Table = "data". Always. Never guess other names.
+    - Dialect = {dialect}. Use correct syntax.
+    - Max {top_k} results unless user specifies more.
+    - No DML (INSERT/UPDATE/DELETE/DROP).
+    - If query fails once, rewrite and retry once only.
+    - After getting result → answer immediately. No extra steps.
 
-    Workflow:
+    STRICT Workflow - follow exactly, no deviations:
     1. Call sql_db_list_tables with empty input ""
     2. Call sql_db_schema with "data"
-    3. Write SQL using actual column names from schema
-    4. Check SQL with sql_db_query_checker
-    5. Run with sql_db_query
-    6. Return answer
+    3. Write SQL using ONLY columns from schema.
+    4. Call sql_db_query_checker with your SQL.
+    5. Call sql_db_query to execute.
+    6. Return final answer immediately.
     """.strip()
 
 
@@ -144,7 +141,8 @@ async def query_file(file_record, query, top_k=5) -> dict[str, Any]:
         toolkit=toolkit,
         system_prompt=_system_prompt(sql_db.dialect, top_k),
         verbose=True,
-        max_iterations=6,
+        max_iterations=10,
+        max_execution_time=30,
         handle_parsing_errors=True,
     )
 

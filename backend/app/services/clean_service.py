@@ -17,7 +17,8 @@ from typing import Any
 
 import pandas as pd
 from langchain_groq import ChatGroq
-from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_google_genai import GoogleGenerativeAI
+import google.generativeai as genai
 
 from app.config import settings
 from app.models.file import UploadedFile
@@ -26,12 +27,13 @@ CLEANED_DIR = "./cleaned_files"
 os.makedirs(CLEANED_DIR, exist_ok=True)
 
 ##### LLM #####
-
+genai.configure(api_key=settings.GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-2.5-flash")
 def _get_llm():
-    if settings.GROQ_API_KEY:
-        return ChatGroq(api_key=settings.GROQ_API_KEY, model_name="llama-3.1-8b-instant", temperature=0.3, max_tokens=1024)
+    if settings.GEMINI_API_KEY:
+        return model
     
-    return ChatGoogleGenerativeAI(google_api_key=settings.GEMINI_API_KEY, model="gemini-2.5-flash", temperature=0.3)
+    return ChatGroq(api_key=settings.GROQ_API_KEY, model="llama-3.1-8b-instant", temperature=0.3, max_token=1024)
 
 ##### Safe val #####
 
@@ -116,7 +118,7 @@ def auto_clean(
             q1 = df[col].quantile(0.25)
             q3 = df[col].quantile(0.75)
             iqr = q3-q1
-            df = df[(df(col) >= q1 - 1.5 * iqr) & (df[col] <= q3 + 1.5 * iqr)]
+            df = df[(df[col] >= q1 - 1.5 * iqr) & (df[col] <= q3 + 1.5 * iqr)]
         summary["outliers_removed"] = True
     else:
         summary["outliers_removed"] = False
@@ -162,8 +164,8 @@ def generate_insights(df: pd.DataFrame, summary: dict, original_name: str) -> st
             cat_lines.append(f"{col} top values: {top}")
         
         prompt = f"""
-            You are a data analyst. Given dataset stats, provide 4-5 concise insights in plain English.
-            Dataset: {original_name} | {summary['row_after']} rows | {summary['cols']} columns
+            You are a data analyst. Given dataset stats, provide 10 concise insights in plain English.
+            Dataset: {original_name} | {summary['rows_after']} rows | {summary['cols']} columns
 
             Cleaning summary:
             - Duplicates removed: {summary['duplicates_removed']}
@@ -179,8 +181,8 @@ def generate_insights(df: pd.DataFrame, summary: dict, original_name: str) -> st
             Give 4-5 insights. Plain text. No markdown. No bullet symbols. Number each insight.
     
         """
-        response = llm.invoke(prompt)
-        return response.content.strip() if hasattr(response, "content") else str(response).strip()
+        response = llm.generate_content(prompt)
+        return response.text.strip() if hasattr(response, "content") else str(response).strip()
     
 ##### Before / After comparison
 

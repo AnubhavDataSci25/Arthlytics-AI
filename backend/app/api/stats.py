@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import os
+import traceback
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -46,6 +47,7 @@ def get_stats(
     try:
         df_clean, summary = clean_service.auto_clean(df_original.copy(), remove_outliers=remove_outliers)
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Cleaning failed: {e}")
     
     # Save cleaned file
@@ -60,6 +62,7 @@ def get_stats(
         try:
             nl_insights = clean_service.generate_insights(df_clean, summary, db_file.original_name)
         except Exception:
+            traceback.print_exc()
             nl_insights = "Insights unavailable - check LLM API key."
 
     # Re-run stats on cleaned df
