@@ -148,11 +148,10 @@ Arthlytics-AI/
 | 1 | ✅ Done | **Project Setup** — FastAPI app, config, PostgreSQL via SQLAlchemy, Alembic, CORS, health endpoint |
 | 2 | ✅ Done | **Auth System** — User model, JWT register/login, `get_current_user` dependency, bcrypt password hashing |
 | 3 | ✅ Done | **File Upload** — Upload / list / delete CSV & XLSX files; metadata (shape, columns) stored in DB |
-| 4 | ✅ Done | **Data Statistics** — Per-column stats (dtype, nulls, mean, median, std, top values), duplicate & missing-cell counts, sample rows |
+| 4 | ✅ Done | **Data Statistics & Cleaning** — Per-column stats (dtype, nulls, mean, median, std, top values), duplicate & missing-cell counts, sample rows; **updated** with auto-cleaning pipeline (duplicate removal, missing-value imputation via median/mode, dtype coercion, IQR outlier detection & optional removal, before/after comparison, cleaned file download); **updated** NL insights via HuggingFace Hub Inference API |
 | 5 | ✅ Done | **Smart Visualization** — Gemini 2.5 Flash generates chart type, axes & aggregation from a natural language query; backend builds and returns ready-to-render data points |
 | 6 | ✅ Done | **SmartQuery AI Chat** — CSV/XLSX → ephemeral SQLite; LangChain SQL Agent (Groq primary, Gemini fallback) answers natural language questions; LangSmith tracing integrated |
-| 7 | ✅ Done | **Auto Data Cleaning** — Duplicate removal, missing-value imputation (median/mode), dtype coercion, IQR outlier detection & optional removal; NL insights via HuggingFace; before/after comparison; cleaned file download |
-| 8 | ✅ Done | **Projects & Collaboration** — Project CRUD with invite-code join, role-based membership (Admin / Editor / Viewer), persisted message history, real-time WebSocket chat rooms |
+| 7 | ✅ Done | **Collaborative Workspace** — Project CRUD with invite-code join, role-based membership (Admin / Editor / Viewer), persisted message history, real-time WebSocket chat rooms per project |
 
 ---
 
