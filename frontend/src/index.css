@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    * { box-sizing: border-box;}
+    body {
+        @apply bg-surface-900 text-zinc-100 font-body antialiased;
+    }
+    h1, h2, h3, h4, h5, h6 { @apply font-display; }
+    code, pre { @apply font-mono;}
+}
+
+@layer utilities {
+    .glass {
+        @apply bg-surface-800/60 backdrop-blur-md border border-white/5;
+    }
+    .card {
+        @apply bg-surface-800 border border-white/5 rounded-xl p-5;
+    }
+    .btn-primary {
+        @apply bg-brand-500 hover:bg-brand-400 text-white font-display font-semibold
+        px-5 py-2.5 rounded-xl transition-all duration-200 text-sm
+        disabled:opacity-40 disabled:cursor-not-allowed;
+    }
+    .btn-ghost {
+        @apply text-zinc-400 hover:text-zinc-100 hover:bg-white/5
+        px-4 py-2 rounded-lg transition-all duration-200 text-sm;
+    }
+    .input {
+        @apply w-full bg-surface-700 border border-white/10 rounded-lg px-4 py-2.5
+        text-zinc-100 placeholder-zinc-500 text-sm
+        focus:outline-none focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/20
+        transition-all duration-200;
+    }
+    .label {
+        @apply block text-xs font-display font-semibold text-zinc-400 mb-1.5 uppercase tracking-widest;
+    }
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: #253029 transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #253029; border-radius: 99px; }
+}
