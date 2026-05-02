@@ -15,3 +15,6 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     files = relationship("UploadedFile", back_populates="owner", cascade="all, delete-orphan")
+    owned_projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
+    memberships = relationship("ProjectMember", back_populates="user", cascade="all, delete-orphan")
+    messages = relationship("Message", back_populates="sender", cascade="all, delete-orphan")
