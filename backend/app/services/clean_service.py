@@ -17,7 +17,7 @@ from typing import Any
 
 import pandas as pd
 from langchain_groq import ChatGroq
-# from langchain_google_genai import GoogleGenerativeAI
+from huggingface_hub import InferenceClient
 import google.generativeai as genai
 
 from app.config import settings
@@ -27,13 +27,10 @@ CLEANED_DIR = "./cleaned_files"
 os.makedirs(CLEANED_DIR, exist_ok=True)
 
 ##### LLM #####
-genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.5-flash")
-def _get_llm():
-    if settings.GEMINI_API_KEY:
-        return model
-    
-    return ChatGroq(api_key=settings.GROQ_API_KEY, model="llama-3.1-8b-instant", temperature=0.3, max_token=1024)
+
+def _get_inference_client() -> InferenceClient:
+    if settings.HF_API_KEY:
+        return InferenceClient(api_key=settings.HF_API_KEY)
 
 ##### Safe val #####
 
@@ -147,7 +144,7 @@ def save_cleaned(df: pd.DataFrame, original_name: str, fmt: str="csv") -> tuple[
 ##### NL Insights #####
 
 def generate_insights(df: pd.DataFrame, summary: dict, original_name: str) -> str:
-    llm = _get_llm()
+    llm = _get_inference_client()
 
     # Build stats snippet - keep small to stay under token limit
     num_cols = df.select_dtypes(include="number").columns.tolist()
@@ -178,11 +175,16 @@ def generate_insights(df: pd.DataFrame, summary: dict, original_name: str) -> st
             Categorical distributions:
             {chr(10).join(cat_lines)}
 
-            Give 4-5 insights. Plain text. No markdown. No bullet symbols. Number each insight.
+            Give 10 insights. Plain text. No markdown. No bullet symbols. Number each insight.
     
         """
-        response = llm.generate_content(prompt)
-        return response.text.strip() if hasattr(response, "content") else str(response).strip()
+        response = llm.chat.completions.create(
+            model="openai/gpt-oss-20b",
+            messages=[{"role":"user", "content": prompt}],
+            max_tokens=512,
+            temperature=0.3,
+        )
+        return response.choices[0].message.content.strip()
     
 ##### Before / After comparison
 
