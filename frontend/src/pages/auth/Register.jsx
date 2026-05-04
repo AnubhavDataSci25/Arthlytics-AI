@@ -6,7 +6,7 @@ import useAuthStore from '@/store/authStore';
 import toast from "react-hot-toast";
 
 export default function Register() {
-    const [form, setForm] = useState({ email: '', usernamae: '', password: ''})
+    const [form, setForm] = useState({ email: '', username: '', password: ''})
     const [show, setShow] = useState(false)
     const [loading, setLoading] = useState(false)
     const setAuth = useAuthStore(s => s.setAuth)
