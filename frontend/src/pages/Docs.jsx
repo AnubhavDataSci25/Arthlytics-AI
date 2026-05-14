@@ -33,7 +33,7 @@ const NAV = [
             { label: 'Models Used', id: 'models'},
             { label: 'SQL Agent', id: 'sqlagent'},
             { label: 'LangChain', id: 'langchain'},
-            { label: 'HuggingFace', id: 'HuggingFace'},
+            { label: 'HuggingFace', id: 'huggingface'},
         ]
     },
     {
@@ -199,6 +199,139 @@ function DocContent() {
             </section>
 
             {/* Quick Start */}
+            <section id="quickstart" className="scroll-mt-20 mb-12">
+                <H2 id="quickstart">Quick Start</H2>
+                <P>Get running in 4 steps after account creation.</P>
+                <Step n="1" title="Create account" desc="Register with email, username and password on the register page."/>
+                <Step n="2" title="Upload dataset" desc="Gp to CleanStats → drag-drop your CSV or Excel file. Supports up to 10MB."/>
+                <Step n="3" title="Run CleanStats" desc="Click 'Run Cleaning' to auto-clean data and view statistical summary. Enable 'Insights' for AI-generated observations."/>
+                <Step n="4" title="Explore features" desc="Use AutoViz to generate charts, SmartQuery to ask questions, and Workspace to collaborate."/>
+                <InfoBox type='tip' title="Tip">
+                    Start with a small dataset (under 1000 rows) to see instant results. Larger datasets work fine but take longer to index.
+                </InfoBox>
+            </section>
+
+            {/* Features */}
+            <section id='features' className='scroll-mt-20 mb-4'>
+                <H2 id="features">Core Features</H2>
+            </section>
+
+            <section id="cleanstats" className='scroll-mt-20 mb-10'>
+                <H3>CleanStats</H3>
+                <P>Automated data cleaning and statistical analysis engine.</P>
+                <FeatureCard icon={BarChart2} label="Auto Cleaning" color="text-brand-400 bg-brand-500/10"
+                    desc="Removes duplicate rows, fills missing values (median for numeric, mode for categorical), detects dtype inconsistencies." />
+                <FeatureCard icon={Zap} label="Outlier Detection" color="text-amber-400 bg-amber-500/10"
+                    desc="IQR-based outlier detection per numeric column. Option to remove or keep outliers."/>
+                <FeatureCard icon={Brain} label="AI Insights" color="text-violet-400 bg-violet-500/10"
+                    desc="LLM reads dataset stats and generates observations about trends, distributions, and data quality." />
+                <InfoBox type='info' title="Supported formats">
+                    CSV (.csv) and Excel (.xlsx, .xls). Max file size: 10MB.
+                </InfoBox>
+                <P>After cleaning, download the processed dataset directly as CSV.</P>
+            </section>
+
+            <section id="autoviz" className='scroll-mt-20 mb-10'>
+                <H3>AutoViz</H3>
+                <P>Describe a chart in plain English. AI picks chart type, columns, and aggregation. Frontend renders it with Recharts - no code required.</P>
+                <div className='card mb-4'>
+                    <p className='text-xs font-display font-semibold text-zinc-500 uppercase tracking-widest mb-3'>Example queries</p>
+                    {[
+                        'Show me sales by city as a bar chart',
+                        'What is the trend of prices over time?',
+                        'Distribution of property types as a pie chart',
+                        'Average price per bedroom count',
+                    ].map(q => (
+                        <div key={q} className='flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0'>
+                            <ArrowRight className='w-3 h-3 text-brand-400 shrink-0'/>
+                            <span className='text-xs text-zinc-400 italic'>"{q}"</span>
+                        </div>
+                    ))}
+                </div>
+                <P>Supported chart types: bar, line, area, scatter, pie, histogram.</P>
+                <InfoBox type='warning' title="Note">
+                    AutoViz works best with clearly named columns. Rename columns like "col1" to meaningful names before uploading.
+                </InfoBox>
+            </section>
+
+            <section id="smartquery" className='scroll-mt-20 mb-10'>
+                <H3>SmartQuery</H3>
+                <P>AI-Powered chat with your dataset. Ask any question in plain English - get accurate, SQL-backed answers.</P>
+                <div className='card mb-4'>
+                    <p className='text-xs text-zinc-500 mb-3'>How it works internally:</p>
+                    {[
+                        'CSV loaded into SQLite database (one-time per file)',
+                        'LangChain SQL Agent receives your question',
+                        'Agent inspects table schema using built-in tools',
+                        'Agent writes SQL → validates → executes',
+                        'Raw result passed to LLM → human-readable answer returned',
+                    ].map((s, i) => (
+                        <div key={i} className='flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0'>
+                            <span className='text-brand-400 font-mono text-xs shrink-0 mt-0.5'>{i+1}.</span>
+                            <span className='text-xs text-zinc-400'>{s}</span>
+                        </div>
+                    ))}
+                </div>
+                <InfoBox type='tip' title="Best results">
+                    Ask specific questions with column names when possible. Example: "What is the average price for 3 BHK properties in Mumbai?"
+                </InfoBox>
+            </section>
+
+            <section id="workspace" className='scroll-mt-20 mb-10'>
+                <H3>Collaborative Workspace</H3>
+                <P>Create shared projects, invite teammates, and collaborate in real-time.</P>
+                <FeatureCard icon={Users} label="Project System" color="text-amber-400 bg-amber-500/10"
+                    desc="Create projects with unique invite codes. Members join via code. Each project has isolated chat history and shared context."/>
+                <FeatureCard icon={MessageSquare} label="Real-time Chat" color="text-sky-400 bg-sky-500/10"
+                    desc="WebSocket-powered messaging. Messages broadcast instantly to all online members. Full history persisted in database."/>            
+            </section>
+
+            {/* AI & Models */}
+            <section id='ai' className='scroll-mt-20 mb-4'>
+                <H2 id="ai">AI & Models</H2>
+            </section>
+
+            <section id='models' className='scroll-mt-20 mb-10'>
+                <H3>Models Used</H3>
+                <div className='card'>
+                    <TechRow name="llama-3.1-8b-instant" badge="Groq - SmartQuery primary LLM" desc="Fast inference, used for SQL result humanization and chat answers."/>
+                    <TechRow name="gemini-2.5-flash" badge="Google - AutoViz LLM" desc="Chart config generation from natural language queries." />
+                    <TechRow name="gpt-oss-20b" badge="Groq + HuggingFace - CleanStats insights" desc="Generates natural language observations from dataset statistics."/>
+                </div>
+                <InfoBox type='info' title="Model fallback">
+                    If Groq is unavailable, system falls back to Gemini automatically. No configuration needed.
+                </InfoBox>
+            </section>
+
+            <section id='sqlagent' className='scroll-mt-20 mb-10'>
+                <H3>SQL Agent</H3>
+                <P>LangChain SQL Agent with 4 tools: list tables, inspect schema, validate SQL, execute query. Agent follows strict workflow - no hallucination of table or column names.</P>
+                <div className='card'>
+                    {[
+                        { tool: 'sql_db_list_tables', desc: 'Discovers available tables'},
+                        { tool: 'sql_db_schema', desc: 'Reads column names and types'},
+                        { tool: 'sql_db_query_checker', desc: 'Validates SQL before execution'},
+                        { tool: 'sql_db_query', desc: 'Executes query, returns result'},
+                    ].map(({ tool, desc }) => (
+                        <div key={tool} className='flex items-start gap-3 py-2 border-b border-white/5 last:border-0'>
+                            <code className='text-xs font-mono text-sky-400 shrink-0 mt-0.5'>{tool}</code>
+                            <span className='text-xs text-zinc-500'>{desc}</span>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section id='langchain' className='scroll-mt-20 mb-10'>
+                <H3>LangChain</H3>
+                <P>LangChain orchestrates the full AI pipeline — prompt templates, tool calling, agent loops, and output parsing. LangSmith tracing enabled for debugging and performance monitoring.</P>
+            </section>
+
+            <section id='huggingface' className='scroll-mt-20 mb-10'>
+                <H3>HuggingFace</H3>
+                <P>HuggingFace orchestrates the AI pipeline for CleanStats natural language insights generation pipeline — it generate insights based on stats from dataset.</P>
+            </section>
+
+            {/* Architecture */}
             
         </div>
     )
