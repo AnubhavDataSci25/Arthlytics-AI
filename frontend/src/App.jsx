@@ -7,6 +7,7 @@ import Login from '@/pages/auth/Login';
 import Resgister from '@/pages/auth/Register';
 import Dashboard from '@/pages/Dashboard';
 import NotFound from '@/pages/NotFound';
+import Landing from '@/pages/Landing';
 
 // Layout
 import AppLayout from './components/layout/AppLayout';
@@ -41,12 +42,13 @@ export default function App() {
             />
             <Routes>
                 {/* Public */}
+                <Route path='/' element={<PublicRoute><Landing/></PublicRoute>} />
                 <Route path='/login' element={<PublicRoute><Login /></PublicRoute>}/>
                 <Route path='/register' element={<PublicRoute><Register /></PublicRoute>} />
 
                 {/* Private - wrapped in AppLayout */}
                 <Route path='/' element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-                    <Route index element={<Navigate to='/dashboard' replace/>} />
+                    {/* <Route index element={<Navigate to='/app/dashboard' replace/>} /> */}
                     <Route path='dashboard' element={<Dashboard/>} />
                     {/* F3-F6 routes added per phase */}
                 </Route>

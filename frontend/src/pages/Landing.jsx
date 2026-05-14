@@ -151,8 +151,112 @@ export default function Landing() {
                 </div>
 
                 {/* Stats row */}
-                
+                <div className="relative mt-16 flex items-center gap-8 flex-wrap justify-center">
+                    {STATS.map(({ icon: Icon, val, label }) => (
+                        <div key={label} className='flex items-center gap-2'>
+                            <Icon className='w-4 h-4 text-brand-400'/>
+                            <span className='font-display font-bold text-zinc-100'>{val}</span>
+                            <span className='text-xs text-zinc-500'>{label}</span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Scroll cue */}
+                <button onClick={scrollDown} className='absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-600 hover:text-zinc-400 transition-colors animate-bounce'>
+                    <ChevronDown className='w-5 h-5'/>
+                </button>
             </section>
+
+            {/* Features */}
+            <section className='max-w-6xl mx-auto px-6 py-24'>
+                <Reveal className='text-center mb-14'>
+                    <p className='text-xs font-display font-semibold text-brand-400 uppercase tracking-widest mb-2'>Features</p>
+                    <h2 className='text-3xl font-display font-black text-zinc-100'>Everything you need to understand your data</h2>
+                </Reveal>
+
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+                    {FEATURES.map(({ icon: Icon, label, color, desc }, i) => (
+                        <Reveal key={label} delay={i*80}>
+                            <div className='card hover:border-white/10 hover:bg-surface-700 transition-all duration-200 group cursor-default h-full'>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${color}`}>
+                                    <Icon className='w-5 h-5'/>
+                                </div>
+                                <h3 className='font-display font-bold text-zinc-100 mb-2 group-hover:text-brand-300 transition-colors'>{label}</h3>
+                                <p className='text-sm text-zinc-500 leading-relaxed'>{desc}</p>
+                            </div>
+                        </Reveal>
+                    ))}
+                </div>
+            </section>
+
+            {/* Workflow */}
+            <section className='border-y border-white/5 bg-surface-800/40 py-24 px-6'>
+                <div className='max-w-5xl mx-auto'>
+                    <Reveal className='text-center mb-14'>
+                        <p className='text-xs font-display font-semibold text-brand-400 uppercase tracking-widest mb-2'>Workflow</p>
+                        <h2 className='text-3xl font-display font-black text-zinc-100'>Five steps from raw data to insights</h2>
+                    </Reveal>
+
+                    <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
+                        {WORKFLOW.map(({ icon: Icon, label, desc }, i) => (
+                            <Reveal key={label} delay={i*100} className='flex-1 w-full'>
+                                <div className='flex flex-col items-center text-center gap-3'>
+                                    <div className='w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center'>
+                                        <Icon className='w-5 h-5 text-brand-400'/>
+                                    </div>
+                                    <div>
+                                        <p className='font-display font-semibold text-zinc-100 text-sm'>{label}</p>
+                                        <p className='text-xs text-zinc-500 mt-0.5'>{desc}</p>
+                                    </div>
+                                    {i < WORKFLOW.length - 1 && (
+                                        <ArrowRight className='hidden md:block absolute right-[-18px] top-4 w-4 h-4 text-zinc-700'/>
+                                    )}
+                                </div>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA */}
+            <section className='py-24 px-6 text-center'>
+                <Reveal>
+                    <div className='max-w-xl mx-auto'>
+                        <h2 className='text-3xl font-display font-black text-zinc-100 mb-4'>
+                            Ready to explore your data?
+                        </h2>
+                        <p className='text-zinc-500 mb-8 text-sm'>Start free. No credit card required.</p>
+                        <button
+                            onClick={() => navigate('/register')}
+                            className='btn-primary text-base px-8 py-3 flex items-center gap-2 mx-auto'
+                        >
+                            Get Started <ArrowRight className='w-4 h-4'/>
+                        </button>
+                    </div>
+                </Reveal>
+            </section>
+
+            {/* Footer */}
+            <footer className='border-t border-white/5 py-8 px-6'>
+                <div className='max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4'>
+                    <div className='flex items-center gap-2'>
+                        <Sparkles className='w-4 h-4 text-brand-400'/>
+                        <span className='font-display font-bold text-sm text-zinc-400'>
+                            Arthlytics <span className='text-brand-400'>AI</span>
+                        </span>
+                    </div>
+                    <div className='flex items-center gap-5 text-xs text-zinc-500'>
+                        <button onClick={() => navigate('/docs')} className='hover:text-zinc-300 transition-colors flex items-center gap-1'>
+                            <FileText className='w-3.5 h-3.5'/> Docs
+                        </button>
+                        <a href='https://github.com/AnubhavDataSci25' target='_blank' rel='noreferrer' className='hover:text-zinc-300 transition-colors flex items-center gap-1'>
+                            <Github className='w-3.5 h-3.5'/> GitHub
+                        </a>
+                        <button onClick={() => navigate('/login')} className='hover:text-zinc-300 transition-colors'>Sign in</button>
+                        <button onClick={() => navigate('/register')} className='hover:text-zinc-300 transition-colors'>Register</button>
+                    </div>
+                </div>
+            </footer>
         </div>
     )
 }
