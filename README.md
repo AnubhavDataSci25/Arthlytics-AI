@@ -97,13 +97,7 @@ Arthlytics-AI/
 ## Frontend Docs
 
 - **Route:** `/docs`
-- **Scope covered in docs page:**
-  - Getting Started
-  - Core Features (CleanStats, AutoViz, SmartQuery, Workspace)
-  - AI & Models
-  - Architecture (Frontend/Backend/Database/AI layer)
-  - Security & Privacy
-  - Collaboration and roles
+- **Scope covered in docs page:** Getting Started, Core Features (CleanStats, AutoViz, SmartQuery, Workspace), AI & Models, Architecture (Frontend/Backend/Database/AI layer), Security & Privacy, Collaboration and roles.
 
 ---
 
