@@ -8,6 +8,7 @@ import Resgister from '@/pages/auth/Register';
 import Dashboard from '@/pages/Dashboard';
 import NotFound from '@/pages/NotFound';
 import Landing from '@/pages/Landing';
+import Docs from '@/pages/Docs';
 
 // Layout
 import AppLayout from './components/layout/AppLayout';
@@ -43,6 +44,7 @@ export default function App() {
             <Routes>
                 {/* Public */}
                 <Route path='/' element={<PublicRoute><Landing/></PublicRoute>} />
+                <Route path='/docs' element={<PublicRoute><Docs/></PublicRoute>}/>
                 <Route path='/login' element={<PublicRoute><Login /></PublicRoute>}/>
                 <Route path='/register' element={<PublicRoute><Register /></PublicRoute>} />
 

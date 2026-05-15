@@ -183,7 +183,7 @@ function DocContent() {
                             ['Visualize', 'LLM reads column schema → returns chart config → Recharts renders'],
                             ['Query', 'SQL agent converts question → SQLite query → exact answer'],
                             ['Collaborate', 'WebSocket broadcasts messages to all project members'],
-                        ].map(([Step, desc], i, arr) => (
+                        ].map(([step, desc], i, arr) => (
                             <div key={step}>
                                 <div className='flex items-start gap-3'>
                                     <span className='text-brand-400 font-display font-bold text-xs w-20 shrink-0 mt-0.5'>{step}</span>
@@ -332,7 +332,255 @@ function DocContent() {
             </section>
 
             {/* Architecture */}
-            
+            <section id='architecture' className='scroll-mt-20 mb-4'>
+                <H2 id='architecture'>Architecture</H2>
+            </section>
+
+            <section id='techstack' className='scroll-mt-20 mb-10'>
+                <H3>Tech Stack</H3>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    {[
+                        {cat: 'Frontend', icon: Globe, items: ['React JS', 'Vite', 'TailwindCSS', 'Zustand', 'React Query', 'Recharts']},
+                        {cat: 'Backend', icon: Server, items: ['FastAPI', 'SQLAlchemy', 'Alembic', 'Uvicorn', 'WebSockets']},
+                        {cat: 'Database', icon: Database, items: ['PostgreSQL', 'SQLite (per-file)', 'Redis (palnned)']},
+                        {cat: 'AI Layer', icon: Brain, items: ['LangChain', 'LangSmith', 'HuggingFace', 'Groq', 'Gemini']},
+                    ].map(({ cat, icon: Icon, items }) => (
+                        <div key={cat} className='card'>
+                            <div className='flex items-center gap-2 mb-3'>
+                                <Icon className='w-4 h-4 text-brand-400'/>
+                                <p className='text-xs font-display font-semibold text-zinc-400 uppercase tracking-widest'>{cat}</p>
+                            </div>
+                            <div className='flex flex-wrap gap-1.5'>
+                                {items.map(i => <Badge key={i}>{i}</Badge>)}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section id='backend' className='scroll-mt-20 mb-10'>
+                <H3>Backend</H3>
+                <P>FastAPI backend with modular router architecture. Each feature (auth, upload, stats, visualize, chat, projects) is an isolated router registered in main file.</P>
+                <div className='card font-mono text-xs text-zinc-400 space-y-1'>
+                    {[
+                        'POST /api/auth/register     — create account',
+                        'POST /api/auth/login        — get JWT token',
+                        'POST /api/upload            — upload CSV/XLSX',
+                        'GET  /api/stats/{id}        — basic stats',
+                        'GET  /api/stats/{id}?clean  — full cleaning',
+                        'POST /api/visualize         — generate chart',
+                        'POST /api/chat              — SmartQuery',
+                        'POST /api/projects          — create project',
+                        'WS   /ws/project/{id}       — real-time chat'
+                    ].map(r => <div key={r}><span className='text-brand-400'>{r.split('—')[0]}</span><span className='text-zinc-600'>—{r.split('—')[1]}</span></div>)}
+                </div>
+            </section>
+
+            <section id='database' className='scroll-mt-20 mb-10'>
+                <H3>Database</H3>
+                <P>PostgreSQL for persistent storage. Alembic handles schema migrations. Each uploaded file gets a dedicated SQLite database for SmartQuery — isolated per user, per file.</P>
+                <div className='card'>
+                    {[
+                        { table: 'users', desc: 'Auth credentials, profile'},
+                        { table: 'uploaded_files', desc:'File metadata, shape, path'},
+                        { table: 'projects', desc: 'Collaborative workspace projects'},
+                        { table: 'project_members', desc: 'Membership + role assignments'},
+                        { table: 'messages', desc: 'Persistent chat history'},
+                    ].map(({ table, desc}) => (
+                        <div key={table} className='flex items-center gap-3 py-2 border-b border-white/5 last:border-0'>
+                            <code className='text-xs font-mono text-violet-400 shrink-0'>{table}</code>
+                            <span className='text-xs text-zinc-500'>{desc}</span>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Security */}
+            <section id='security' className='scroll-mt-20 mb-4'>
+                <H2 id='security'>Security</H2>
+            </section>
+
+            <section id='auth' className='scroll-mt-20 mb-10'>
+                <H3>Authentication</H3>
+                <P>JWT-based stateless authentication. Tokens expire after 24 hours. Passwords hashed with bcrypt (SHA256 pre-hashing to handle long passwords safely).</P>
+                <div className='card'>
+                    {[
+                        ['Token type',          'Bearer JWT'],
+                        ['Expiry',              '24 hours'],
+                        ['Password hash',       'bcrypt + SHA256'],
+                        ['Protected',           'All routes except /login, /register, /docs'],
+                    ].map(([k, v]) => (
+                        <div key={k} className='flex items-center gap-3 py-2 border-b border-white/5 last:border-0'>
+                            <span className='text-xs text-zinc-500 w-32 shrink-0'>{k}</span>
+                            <span className='text-xs text-zinc-300 font-mono'>{v}</span>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section id='privacy' className='scroll-mt-20 mb-10'>
+                <H3>Data Privacy</H3>
+                <P>Files stored server-side, isolated per user. Only the file owner can access, analyze, or delete their uploads. SmartQuery SQLite databses are scoped per file — no cross-user data access possible.</P>
+                <InfoBox type='warning' title='Important'>
+                    Do not upload files containing sensitive personal information (PII). Arthlytics AI is designed for analytical datasets, not personal records.
+                </InfoBox>
+            </section>
+
+            {/* Collaboration */}
+            <section id='collab' className='scroll-mt-20 mb-4'>
+                <H2 id='collab'>Collaboration</H2>
+            </section>
+
+            <section id='projects' className='scroll-mt-20 mb-10'>
+                <H3>Projects</H3>
+                <P>Create a project to start collaborating. Each project has a unique invite code. Share the code with teammates — they join via the Workspace page.</P>
+            </section>
+
+            <section id='roles' className='scroll-mt-20 mb-10'>
+                <H3>Roles</H3>
+                <div className='card'>
+                    {[
+                        { role: 'Admin', color: 'text-red-400', desc: 'Full control. Manage members, change roles, delete project.'},
+                        { role: 'Editor', color: 'text-brand-400', desc: 'Can upload files, run analysis, chat. Cannot manage members.'},
+                        { role: 'Viewer', color: 'text-zinc-400', desc: 'Read-only. Can view data and chat history.'},
+                    ].map(({role, color, desc}) => (
+                        <div key={role} className='flex items-start gap-3 py-2.5 border-b border-white/5 last:border-0'>
+                            <span className={`text-xs font-display font-bold w-14 shrink-0 mt-0.5 ${color}`}>{role}</span>
+                            <span className='text-xs text-zinc-500 leading-relaxed'>{desc}</span>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section id='realtime' className='scroll-mt-20 mb-10'>
+                <H3>Real-time Chat</H3>
+                <P>WebSocket connection established on project open. Messages broadcast instantly to all online members. Authentication via JWT passed as query param during WS handshake. Chat history persisted to PostgreSQL — accessible even after reconnect.</P>
+            </section>
+        </div>
+    )
+}
+
+// Sidebar
+function Sidebar({ active, onSelect}){
+    const [open, setOpen] = useState(() => NAV.map(n => n.id))
+    const toggle = id => setOpen(p => p.includes(id) ? p.filter(x => x!== id) : [...p, id])
+
+    return (
+        <div className='w-56 shrink-0 py-6 px-3 space-y-0.5 overflow-y-auto scrollbar-thin h-full'>
+            {NAV.map(({ label, icon: Icon, id, children}) => (
+                <div key={id}>
+                    <button
+                        onClick={() => toggle(id)}
+                        className='w-full flex items-center gap-2 px-3 py-2 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-white/5 transition-all text-xs font-display font-semibold uppercase tracking-widest'
+                    >
+                        <Icon className='w-3.5 h-3.5 shrink-0'/>
+                        <span className='flex-1 text-left'>{label}</span>
+                        {open.includes(id)
+                        ? <ChevronDown className='w-3 h-3'/>
+                        : <ChevronRight className='w-3 h-3'/>
+                        }
+                    </button>
+                    {open.includes(id) && (
+                        <div className='ml-3 border-l border-white/5 pl-3 mt-0.5 space-y-0.5'>
+                            {children.map(c => (
+                                <button
+                                    key={c.id}
+                                    onClick={() => onSelect(c.id)}
+                                    className={clsx(
+                                        'w-full text-left px-2 py-1.5 rounded-md text-xs transition-all',
+                                        active === c.id
+                                        ? 'text-brand-400 bg-brand-500/10 font-medium'
+                                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+                                    )}
+                                >
+                                    {c.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    )
+}
+
+// Main
+export default function Docs(){
+    const navigate = useNavigate()
+    const [active, setActive] = useState('intro')
+    const [mobileOpen, setMobileOpen] = useState(false)
+    const mainRef =useRef(null)
+
+    const scrollTo = id => {
+        setActive(id)
+        setMobileOpen(false)
+        const el = document.getElementById(id)
+        if (!el || !mainRef.current) return
+        const mainRect = mainRef.current.getBoundingClientRect()
+        const elRect = el.getBoundingClientRect()
+        const offset = 80
+        mainRef.current.scrollTo += elRect.top - mainRect.top - offset
+    }
+
+    // Track active section on scroll
+    useEffect(() => {
+        const allIds = NAV.flatMap(n => n.children.map(c => c.id))
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id) })
+        }, { rootMargin: '-30% 0px -60% 0px' })
+        allIds.forEach(id => {
+            const el = document.getElementById(id)
+            if (el) obs.observe(el)
+        })
+        return () => obs.disconnect()
+    }, [])
+
+    return (
+        <div className='min-h-screen bg-surface-900 flex flex-col'>
+            {/* Top bar */}
+            <header className='sticky top-0 z-40 border-b border-white/5 bg-surface-900/90 backdrop-blur'>
+                <div className='max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between'>
+                    <div className='flex items-center gap-3'>
+                        <button
+                            onClick={() => setMobileOpen(p => !p)}
+                            className='md:hidden text-zinc-400 hover:text-zinc-100'
+                        >
+                            {mobileOpen ? <X className='w-5 h-5'/> : <Menu className='w-5 h-5'/>}
+                        </button>
+                        <button onClick={() => navigate('/')} className='flex items-center gap-2'>
+                            <Sparkles className='w-4 h-4 text-brand-400'/>
+                            <span className='font-display font-bold text-sm text-zinc-100'>
+                                Arthlytics <span className='text-brand-400'>AI</span>
+                            </span>
+                        </button>
+                        <span className='text-zinc-700'>/</span>
+                        <span className='text-xs text-zinc-500 font-display'>Docs</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                        <button onClick={() => navigate('/login')} className='btn-ghost text-xs'>Sign in</button>
+                        <button onClick={() => navigate('/register')} className='btn-primary text-xs px-4 py-2'>Get Started</button>
+                    </div>
+                </div>
+            </header>
+
+            <div className='flex flex-1 max-w-7xl mx-auto w-full'>
+                {/* Desktop sidebar */}
+                <aside className='hidden md:block sticky top-14 h-[calc(100vh-3.5rem)] border-r border-white/5'>
+                    <Sidebar active={active} onSelect={scrollTo}/>
+                </aside>
+
+                {/* Mobile Sidebar */}
+                {mobileOpen && (
+                    <div className='fixed inset-0 z-30 bg-surface-900/95 pt-14 md:hidden'>
+                        <Sidebar active={active} onSelect={scrollTo}/>
+                    </div>
+                )}
+
+                {/* Content */}
+                <main ref={mainRef} className='flex-1 px-6 md:px-12 py-10 overflow-y-auto'>
+                    <DocContent/>
+                </main>
+            </div>
         </div>
     )
 }
