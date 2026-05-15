@@ -511,16 +511,19 @@ export default function Docs(){
     const [mobileOpen, setMobileOpen] = useState(false)
     const mainRef =useRef(null)
 
-    const scrollTo = id => {
-        setActive(id)
-        setMobileOpen(false)
-        const el = document.getElementById(id)
-        if (!el || !mainRef.current) return
-        const mainRect = mainRef.current.getBoundingClientRect()
-        const elRect = el.getBoundingClientRect()
-        const offset = 80
-        mainRef.current.scrollTo += elRect.top - mainRect.top - offset
-    }
+    const scrollTo = (id) => {
+    setActive(id)
+    setMobileOpen(false)
+
+    const el = document.getElementById(id)
+
+    if (!el) return
+
+    el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+    })
+}
 
     // Track active section on scroll
     useEffect(() => {
@@ -577,7 +580,7 @@ export default function Docs(){
                 )}
 
                 {/* Content */}
-                <main ref={mainRef} className='flex-1 px-6 md:px-12 py-10 overflow-y-auto'>
+                <main ref={mainRef} className='flex-1 px-6 md:px-12 py-10'>
                     <DocContent/>
                 </main>
             </div>
