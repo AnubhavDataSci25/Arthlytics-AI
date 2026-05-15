@@ -6,7 +6,7 @@ AI-powered analytics and collaboration platform for CSV/XLSX datasets: clean, an
 
 ## Latest Changes
 
-- Frontend docs page added and available at `/docs` (`frontend/src/pages/Docs.jsx`).
+- Frontend documentation coverage has been organized and explicitly documented for `/docs`.
 - Frontend app structure is now active (React + Vite + Tailwind), not just placeholder/in-progress.
 - Root documentation updated to include frontend setup and frontend docs scope.
 
@@ -97,7 +97,6 @@ Arthlytics-AI/
 ## Frontend Docs
 
 - **Route:** `/docs`
-- **Source file:** `frontend/src/pages/Docs.jsx`
 - **Scope covered in docs page:**
   - Getting Started
   - Core Features (CleanStats, AutoViz, SmartQuery, Workspace)
@@ -128,7 +127,7 @@ Backend docs: `http://localhost:8000/docs`
 
 ```bash
 cd frontend
-npm ci
+npm install
 npm run dev
 ```
 
