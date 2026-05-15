@@ -139,7 +139,9 @@ Frontend docs page: `http://localhost:5173/docs`
 
 ## Environment Variables (No Secret Values)
 
-Use `.env` in `backend/`. Do not commit real secrets/API keys.
+Do not commit real secrets/API keys.
+
+### Backend (`backend/.env`)
 
 | Variable | Purpose |
 |---|---|
@@ -151,6 +153,11 @@ Use `.env` in `backend/`. Do not commit real secrets/API keys.
 | `LANGSMITH_*` | LangSmith tracing configuration |
 | `UPLOAD_DIR`, `MAX_UPLOAD_SIZE_MB` | File upload storage/limit settings |
 | `ENV` | Runtime mode |
+
+### Frontend (`frontend/.env`)
+
+| Variable | Purpose |
+|---|---|
 | `VITE_API_BASE_URL` | Optional frontend API base URL override |
 
 ---
