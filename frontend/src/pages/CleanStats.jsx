@@ -164,13 +164,27 @@ export default function CleanStats() {
                             )}
 
                             {activeTab === 'insights' && cleanResult?.insights && (
-                                <div className='card space-y-3'>
-                                    <div className='flex items-center gap-2 mb-2'>
+                                <div className='card space-y-4'>
+                                    <div className='flex items-center gap-2'>
                                         <Sparkles className='w-4 h-4 text-brand-400'/>
                                         <p className='text-sm font-display font-semibold text-zinc-200'>AI Insights</p>
                                     </div>
-                                    <div className='text-sm text-zinc-400 leading-relaxed whitespace-pre-line'>
-                                        {cleanResult.insights}
+                                    <div className='space-y-3'>
+                                        {cleanResult.insights
+                                            .split(/\n/)
+                                            .filter(line => line.trim())
+                                            .map((line, i) => {
+                                                const clean = line.replace(/^\d+[\.\)]\s*/, '').trim()
+                                                if (!clean) return null
+                                                return (
+                                                    <div key={i} className='flex items-start gap-3 p-3 rounded-lg bg-white/3 border border-white/5'>
+                                                        <div className='w-5 h-5 rounded-full bg-brand-500/20 flex items-center justify-center shrink-0 mt-0.5'>
+                                                            <span className='text-xs font-display font-bold text-brand-400'>{i + 1}</span>
+                                                        </div>
+                                                        <p className='text-sm text-zinc-400 leading-relaxed'>{clean}</p>
+                                                    </div>
+                                                )
+                                            })}
                                     </div>
                                 </div>
                             )}
