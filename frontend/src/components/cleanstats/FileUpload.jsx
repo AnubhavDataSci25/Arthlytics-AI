@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { Upload, FileSpreadsheet, X, Loader2, Trash2 } from 'lucide-react';
-import { useFiles, useUploadFile, useDeleteFile } from '@/hook/useCleanStats';
+import { useFiles, useUploadFile, useDeleteFile } from '@/hooks/useCleanStats';
 import clsx from 'clsx';
 
 export default function FileUpload({ selectedId, onSelect}){
@@ -69,7 +69,7 @@ export default function FileUpload({ selectedId, onSelect}){
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm text-zinc-200 truncate">{f.original_name}</p>
                                     <p className="text-xs text-zinc-600">
-                                        {f.row_count ?? '—'} rows · {f.file_size_kb} <KB></KB>
+                                        {f.row_count ?? '—'} rows · {f.file_size_kb}
                                     </p>
                                 </div>
                                 <button

@@ -9,6 +9,7 @@ import Dashboard from '@/pages/Dashboard';
 import NotFound from '@/pages/NotFound';
 import Landing from '@/pages/Landing';
 import Docs from '@/pages/Docs';
+import CleanStats from '@/pages/CleanStats';
 
 // Layout
 import AppLayout from './components/layout/AppLayout';
@@ -52,7 +53,8 @@ export default function App() {
                 <Route path='/' element={<PrivateRoute><AppLayout /></PrivateRoute>}>
                     {/* <Route index element={<Navigate to='/app/dashboard' replace/>} /> */}
                     <Route path='dashboard' element={<Dashboard/>} />
-                    {/* F3-F6 routes added per phase */}
+                    <Route path='cleanstats' element={<CleanStats />} />
+
                 </Route>
 
                 <Route path='*' element={<NotFound/>} />

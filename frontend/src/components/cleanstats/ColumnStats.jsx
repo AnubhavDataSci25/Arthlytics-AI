@@ -11,7 +11,7 @@ function StatPill({ label, value, color = 'text-zinc-300' }){
     )
 }
 
-function ColRow({ colk, index }){
+function ColRow({ col, index }){
     const [expanded, setExpanded] = useState(false)
     const isNum = col.dtype !== 'object'
 
