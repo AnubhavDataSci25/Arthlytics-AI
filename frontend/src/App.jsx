@@ -10,6 +10,7 @@ import NotFound from '@/pages/NotFound';
 import Landing from '@/pages/Landing';
 import Docs from '@/pages/Docs';
 import CleanStats from '@/pages/CleanStats';
+import AutoViz from '@/pages/AutoViz';
 
 // Layout
 import AppLayout from './components/layout/AppLayout';
@@ -51,10 +52,10 @@ export default function App() {
 
                 {/* Private - wrapped in AppLayout */}
                 <Route path='/' element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-                    {/* <Route index element={<Navigate to='/app/dashboard' replace/>} /> */}
                     <Route path='dashboard' element={<Dashboard/>} />
                     <Route path='cleanstats' element={<CleanStats />} />
-
+                    <Route path='autoviz' element={<AutoViz />} />
+                    
                 </Route>
 
                 <Route path='*' element={<NotFound/>} />

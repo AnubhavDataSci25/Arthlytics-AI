@@ -7,8 +7,8 @@ import {
 
 const COLORS = ['#27a268', '#49be85', '#7dd8aa', '#a78bfa', '#38bdf8', '#f59e0b', '#f87171']
 
-const TOOLTIP_STYPE ={
-    contentStyle: {background: '#111613', border: '1px solid rbga(255,255,255,0.06', borderRadius: 8, fontSize: 12},
+const TOOLTIP_STYLE ={
+    contentStyle: {background: '#111613', border: '1px solid rgba(255,255,255,0.06', borderRadius: 8, fontSize: 12},
     labelStyle: {color: '#a1a1aa'},
     itemStyle: {color: '#e4e4e7'},
 }
@@ -25,7 +25,7 @@ export default function ChartRenderer({ config, data}){
             <CartesianGrid strokeDasharray="3 3" stroke='rgba(255,255,255,0.04)'/>
             <XAxis dataKey={x_column} tick={{fill: '#71717a', fontSize: 11}} tickLine={false} axisLine={false} angle={-30} textAnchor='end'/>
             <YAxis tick={{fill: '#71717a', fontSize: 11}} tickLine={false} axisLine={false}/>
-            <Tooltip {...TOOLTIP_STYPE}/>
+            <Tooltip {...TOOLTIP_STYLE}/>
         </>
     )
 
@@ -70,12 +70,16 @@ export default function ChartRenderer({ config, data}){
                 )
             
             case 'pie':
+                const numericKey = Object.keys(data[0]).find(
+                    k => k !== x_column && typeof data[0][k] === 'number'
+                )
+                const pieKey = y_column || numericKey
                 return (
                     <PieChart>
-                        <Pie data={data} dataKey={y} nameKey={x_column} cx="50%" cy="50%" outerRadius={120} label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                        <Pie data={data} dataKey={pieKey} nameKey={x_column} cx="50%" cy="50%" outerRadius={110} label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={true}>
                             {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]}/>)}
                         </Pie>
-                        <Tooltip {...TOOLTIP_STYPE} />
+                        <Tooltip {...TOOLTIP_STYLE} />
                         <Legend wrapperStyle={{fontSize: 11, color: '#71717a'}}/>
                     </PieChart>
                 )
