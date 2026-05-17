@@ -70,10 +70,7 @@ export default function ChartRenderer({ config, data}){
                 )
             
             case 'pie':
-                const numericKey = Object.keys(data[0]).find(
-                    k => k !== x_column && typeof data[0][k] === 'number'
-                )
-                const pieKey = y_column || numericKey
+                const pieKey = y_column || "value"
                 return (
                     <PieChart>
                         <Pie data={data} dataKey={pieKey} nameKey={x_column} cx="50%" cy="50%" outerRadius={110} label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={true}>

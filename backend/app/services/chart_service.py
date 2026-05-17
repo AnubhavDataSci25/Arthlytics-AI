@@ -81,9 +81,14 @@ def _build_chart_data(df: pd.DataFrame, config: dict) -> list[dict[str, Any]]:
     if y and y not in df.columns:
         raise ValueError(f"Column '{y}' not found in dataset")
     
-    if chart_type == "histogram" or not y:
+    if chart_type == "histogram":
         data = df[[x]].dropna().head(limit)
         return data.to_dict(orient="records")
+    
+    if chart_type == 'pie' and not y:
+        result = df[x].value_counts().reset_index()
+        result.columns = [x, "value"]
+        return result.head(limit).to_dict(orient="records")
 
     # Aggregation
     if agg == "none":
