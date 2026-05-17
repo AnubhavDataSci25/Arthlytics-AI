@@ -28,6 +28,8 @@ export default function AutoViz(){
         try{
             const {data} = await vizService.generate(selectedId, q)
             setResult(data)
+            const prev = parseInt(localStorage.getItem('viz_count') || '0')
+            localStorage.setItem('viz_count', prev + 1)
             setHistory(p => [{query: q, result: data}, ...p.slice(0,4)])
             setQuery('')
         } catch (err) {

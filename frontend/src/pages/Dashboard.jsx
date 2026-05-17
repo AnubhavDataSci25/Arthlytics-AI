@@ -45,10 +45,11 @@ export default function Dashboard() {
     // Compute metrics
     const totalRows = files.reduce((acc, f) => acc + (f.row_count ?? 0), 0)
     const members = projects.reduce((acc, p) => acc + (p.members?.length ?? 0), 0)
+    const vizCount = parseInt(localStorage.getItem('viz_count') || '0')
 
     const STATS = [
         { label: 'File Uploaded', icon: FileUp, value: files.length, color: 'text-brand-400' },
-        { label: 'Charts Generated', icon: BarChart, value: '-', color: 'text-violet-400' },
+        { label: 'Charts Generated', icon: BarChart, value: vizCount, color: 'text-violet-400' },
         { label: 'AI Queries', icon: MessageSquare, value: projects.length, color: 'text-sky-400' },
         { label: 'Workspace Members', icon: Users, value: members, color: 'text-amber-400' },
     ]
