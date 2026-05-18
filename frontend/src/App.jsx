@@ -11,6 +11,7 @@ import Landing from '@/pages/Landing';
 import Docs from '@/pages/Docs';
 import CleanStats from '@/pages/CleanStats';
 import AutoViz from '@/pages/AutoViz';
+import SmartQuery from '@/pages/SmartQuery';
 
 // Layout
 import AppLayout from './components/layout/AppLayout';
@@ -55,6 +56,7 @@ export default function App() {
                     <Route path='dashboard' element={<Dashboard/>} />
                     <Route path='cleanstats' element={<CleanStats />} />
                     <Route path='autoviz' element={<AutoViz />} />
+                    <Route path='smartquery' element={<SmartQuery />}/>
                     
                 </Route>
 

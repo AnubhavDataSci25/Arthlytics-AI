@@ -71,7 +71,7 @@ def _get_llm():
     if settings.GROQ_API_KEY:
         return ChatGroq(
             api_key=settings.GROQ_API_KEY,
-            model_name="llama-3.1-8b-instant",
+            model_name="llama-3.3-70b-versatile",
             temperature=0,
             max_tokens=1024,
         )
@@ -95,25 +95,22 @@ def _get_sql_db(file_record: UploadedFile) -> SQLDatabase:
 ##### System prompt #####
 
 def _system_prompt(dialect: str, top_k: int = 5) -> str:
-    return f"""
-    You are a SQL agent. Database has ONE table: "data".
+    return f"""You are a SQL agent. Database has exactly ONE table named "data".
 
-    IMPORTANT RULES:
-    - Rules:
-    - Table = "data". Always. Never guess other names.
-    - Dialect = {dialect}. Use correct syntax.
-    - Max {top_k} results unless user specifies more.
-    - No DML (INSERT/UPDATE/DELETE/DROP).
-    - If query fails once, rewrite and retry once only.
-    - After getting result → answer immediately. No extra steps.
+    CRITICAL RULES - follow exactly:
+    - Table name = "data". ONLY "data". Never guess other names.
+    - When you call sql_db_list_tables, the response "data" IS the table name. Do NOT ignore it.
+    - When you call sql_db_schema, input MUST be exactly: data
+    - Never invent table names like "brands", "products", "orders".
 
-    STRICT Workflow - follow exactly, no deviations:
-    1. Call sql_db_list_tables with empty input ""
-    2. Call sql_db_schema with "data"
-    3. Write SQL using ONLY columns from schema.
-    4. Call sql_db_query_checker with your SQL.
-    5. Call sql_db_query to execute.
-    6. Return final answer immediately.
+    STRICT workflow:
+    1. sql_db_list_tables → input: "" → response will be "data"
+    2. sql_db_schema → input: "data" → get columns
+    3. Write {dialect} SQL using ONLY real columns from step 2
+    4. sql_db_query_checker → validate SQL
+    5. sql_db_query → execute → return answer
+
+    Max {top_k} results. No DML. One retry on error then stop.
     """.strip()
 
 
@@ -141,8 +138,8 @@ async def query_file(file_record, query, top_k=5) -> dict[str, Any]:
         toolkit=toolkit,
         system_prompt=_system_prompt(sql_db.dialect, top_k),
         verbose=True,
-        max_iterations=10,
-        max_execution_time=30,
+        max_iterations=15,
+        max_execution_time=120,
         handle_parsing_errors=True,
     )
 
