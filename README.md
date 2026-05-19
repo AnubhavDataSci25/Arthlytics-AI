@@ -97,6 +97,7 @@ Arthlytics-AI/
 ## Frontend Docs
 
 - **Route:** `/docs`
+- **Auth routes:** `/login`, `/register`
 - **Scope covered in docs page:** Getting Started, Core Features (CleanStats, AutoViz, SmartQuery, Workspace), AI & Models, Architecture (Frontend/Backend/Database/AI layer), Security & Privacy, Collaboration and roles.
 
 ---
@@ -127,6 +128,8 @@ npm run dev
 
 Frontend app: `http://localhost:5173`  
 Frontend docs page: `http://localhost:5173/docs`
+Frontend login page: `http://localhost:5173/login`  
+Frontend register page: `http://localhost:5173/register`
 
 ---
 
