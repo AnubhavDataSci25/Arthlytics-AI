@@ -12,6 +12,7 @@ import Docs from '@/pages/Docs';
 import CleanStats from '@/pages/CleanStats';
 import AutoViz from '@/pages/AutoViz';
 import SmartQuery from '@/pages/SmartQuery';
+import Workspace from './pages/Workspace';
 
 // Layout
 import AppLayout from './components/layout/AppLayout';
@@ -57,7 +58,7 @@ export default function App() {
                     <Route path='cleanstats' element={<CleanStats />} />
                     <Route path='autoviz' element={<AutoViz />} />
                     <Route path='smartquery' element={<SmartQuery />}/>
-                    
+                    <Route path='workspace' element={<Workspace />}/>
                 </Route>
 
                 <Route path='*' element={<NotFound/>} />
